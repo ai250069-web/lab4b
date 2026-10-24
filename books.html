@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Information</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 30px;
+            background-color: #f4f4f4;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        .book {
+            background-color: white;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+        }
+
+        #status {
+            color: #555;
+        }
+
+        .error {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Book Information</h1>
+
+    <p id="status">Loading book data...</p>
+
+    <div id="firstBook"></div>
+    <div id="secondBook"></div>
+    <div id="genres"></div>
+
+    <script>
+        async function loadBooks() {
+            const status = document.getElementById("status");
+
+            try {
+                const response = await fetch("books.json");
+
+                if (!response.ok) {
+                    throw new Error("Unable to load the book data.");
+                }
+
+                const data = await response.json();
+
+                if (!data || !Array.isArray(data.books) ||
+                    data.books.length < 2) {
+                    throw new Error("The JSON data is invalid.");
+                }
+
+                const firstBook = data.books[0];
+                const secondBook = data.books[1];
+
+                if (
+                    typeof firstBook.title !== "string" ||
+                    typeof secondBook.author !== "string" ||
+                    typeof secondBook.title !== "string" ||
+                    !Array.isArray(firstBook.genres) ||
+                    !Array.isArray(secondBook.genres)
+                ) {
+                    throw new Error("The book information is invalid.");
+                }
+
+                status.textContent = "Book data loaded successfully.";
+
+                const firstSection = document.getElementById("firstBook");
+                const secondSection = document.getElementById("secondBook");
+                const genresSection = document.getElementById("genres");
+
+                const title1 = document.createElement("h2");
+                title1.textContent = "First Book";
+                firstSection.appendChild(title1);
+
+                const book1Title = document.createElement("p");
+                book1Title.textContent = "Title: " + firstBook.title;
+                firstSection.appendChild(book1Title);
+
+                const title2 = document.createElement("h2");
+                title2.textContent = "Second Book";
+                secondSection.appendChild(title2);
+
+                const book2Author = document.createElement("p");
+                book2Author.textContent = "Author: " + secondBook.author;
+                secondSection.appendChild(book2Author);
+
+                const genreHeading = document.createElement("h2");
+                genreHeading.textContent = "Genres";
+                genresSection.appendChild(genreHeading);
+
+                const genre1 = document.createElement("p");
+                genre1.textContent =
+                    firstBook.title + " — " + firstBook.genres.join(", ");
+                genresSection.appendChild(genre1);
+
+                const genre2 = document.createElement("p");
+                genre2.textContent =
+                    secondBook.title + " — " + secondBook.genres.join(", ");
+                genresSection.appendChild(genre2);
+
+                document.querySelectorAll("#firstBook, #secondBook, #genres")
+                    .forEach(section => section.classList.add("book"));
+
+            } catch (error) {
+                status.textContent =
+                    "Error: Unable to load or read the book data. " +
+                    "Please check books.json and try again.";
+                status.classList.add("error");
+                console.error(error);
+            }
+        }
+
+        loadBooks();
+    </script>
+
+</body>
+</html>
